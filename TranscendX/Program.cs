@@ -17,9 +17,6 @@ namespace TranscendX
             ValidateFile();
         }
 
-        
-
-        
 
         static void ValidateFile()
         {
