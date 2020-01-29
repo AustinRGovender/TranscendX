@@ -14,6 +14,13 @@ namespace TranscendX
     {
         static void Main(string[] args)
         {
+            var xslPath = "";
+            //var xmlPath = "";
+            var path = new Uri(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase)).LocalPath;
+            xslPath = path + "\\input.xsl";
+            string doc = path + "\\input.xml";
+        
+            TransformFile(doc, xslPath);
             ValidateFile();
         }
 
@@ -30,9 +37,33 @@ namespace TranscendX
             Console.ReadLine();
         }
 
-        static void TransformFile()
+        public static string TransformFile(string doc, string xslPath)
         {
+            Func<string, XmlDocument> GetXmlDocument = (xmlContent) =>
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(xmlContent);
+                return xmlDocument;
+            };
 
+            try
+            {
+                var document = GetXmlDocument(doc);
+                var xsl = GetXmlDocument(File.ReadAllText(xslPath));
+
+                System.Xml.Xsl.XslCompiledTransform transform = new System.Xml.Xsl.XslCompiledTransform();
+                transform.Load(xsl);
+                System.IO.StringWriter writer = new System.IO.StringWriter();
+
+                XmlReader reader = new XmlTextReader(new StringReader(document.DocumentElement.OuterXml));
+
+                transform.Transform(reader, null, writer);
+                return writer.ToString();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         static void ValidationEventHandler(object sender, ValidationEventArgs e)
